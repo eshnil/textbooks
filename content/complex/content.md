@@ -3,7 +3,7 @@
 ## Introduction
 
 > section: introduction
-> id: intro
+> id: drawing
 
 Remember how we learned in Foundations that, if we remain on the positive side
 of the number line, multiplication is essentially stretching and squeezing and
@@ -17,6 +17,9 @@ an answer.
 
 This leads to an insight: `x^2 = 1 * x * x` will always be positive - even if x is
 a negative number. Here, we can see the graph of x^2:
+
+    include ./components/complextransform
+    x-complex-transform
 
 ---
 > id: imag

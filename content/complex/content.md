@@ -18,9 +18,6 @@ an answer.
 This leads to an insight: `x^2 = 1 * x * x` will always be positive - even if x is
 a negative number. Here, we can see the graph of x^2:
 
-    include ./components/complextransform
-    x-complex-transform
-
 ---
 > id: imag
 
@@ -149,3 +146,11 @@ sdf
 > id: roots
 
 sdf
+
+--- 
+## Component Staging
+    
+    include ./components/complextransform
+    x-complex-transform
+    
+---

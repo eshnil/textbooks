@@ -2,19 +2,19 @@ import {isPalindrome, words, flatten} from '@mathigon/core';
 import {Line, Point} from '@mathigon/fermat';
 import {Draggable, $N, InputView, ElementView} from '@mathigon/boost';
 import {Geopad, GeoPoint, PlayBtn, Slider, Step} from '../shared/types';
-import {ComplexTransform} from './components/complextransform';
+import {Complexarithmetic} from './components/complexarithmetic';
 
-import './components/complextransform';
+import './components/complexarithmetic';
 
 export function drawing($step: Step) {
-    const $complextransform = $step.$('x-complex-transform') as ComplexTransform;
+    const $complexarithmetic = $step.$('x-complex-arithmetic') as Complexarithmetic;
     let switched = false;
   
-    $complextransform.on('draw', () => {
+    $complexarithmetic.on('draw', () => {
       setTimeout(() => $step.score('draw-' + (switched ? 2 : 1)), 500);
     });
   
-    $complextransform.on('switch', () => {
+    $complexarithmetic.on('switch', () => {
       switched = true;
       setTimeout(() => $step.score('switch'), 500);
     });

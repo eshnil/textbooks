@@ -23,12 +23,12 @@ a negative number. Here, we can see the graph of x^2:
 
 At this point, we might start thinking that `x^2 + 1 = 0` has no solutions. But we
 have been through similar challenges when we discovered negative numbers, and
-fractions and then radicals. We had to change our definition of addition and 
+fractions and then radicals. We had to change our definition of addition and
 multiplication again and again. No reason to give up now. What kind of change in
 our concept of a number do we need so that negative numbers could have square
 roots?
 
-So, the question now becomes what operation we can repeat two times that takes 
+So, the question now becomes what operation we can repeat two times that takes
 1 to -1? Flipping across 0 is not it because it brings us back to 1. This was the
 question that troubled many famous mathematicians. And then came an idea: What if
 we thinking of multiplication stretch/squeeze + rotation? After all, flip is nothing
@@ -52,12 +52,12 @@ anti-clockwise? Historically, mathematicians have picked anti-clockwise directio
 the __positive__ direction of rotation. So _i_ would lie one unit above zero. We call
 this the _imaginary_ line. The mirror image of _i_ would be _-i_.
 
-Once we have 0 and a unit imaginary number, by sliding and stretching/squeezing, we get 
+Once we have 0 and a unit imaginary number, by sliding and stretching/squeezing, we get
 the complete imaginary line with numbers like _2i_, _3i_, _100i_, _-4i_, `0.5i`, `sqrt(3)i`
 and so on. Every imaginary number is some real number times `i`.
 
 Because 0 lies on both the real line and the imaginary line, it's both a real number
-and an imaginary number. 
+and an imaginary number.
 
 These imaginary numbers let us solve equations like:
 `sqrt(-9) = 3i`
@@ -121,9 +121,9 @@ You can see this for yourself by applying the pythagoras theorem:
 > id: quartic
 
 
-Now, that we have imaginary and complex numbers in our arsenal, we can solve any quadratic 
+Now, that we have imaginary and complex numbers in our arsenal, we can solve any quadratic
 equation. Take `x^2 + 6 = 0`. If x is restricted to be on the real-line, the expression
-`x^2 + 6` is always higher than 6 and so, it never crosses the x-axis. 
+`x^2 + 6` is always higher than 6 and so, it never crosses the x-axis.
 
 But if we allow x to be a complex number, then a much richer picture emerges:
 
@@ -147,10 +147,10 @@ sdf
 
 sdf
 
---- 
-## Component Staging
-    
-    include ./components/complextransform
-    x-complex-transform
-    
+---
+## Complex Arithmetic
+
+    include ./components/complexarithmetic
+    x-complex-arithmetic
+
 ---

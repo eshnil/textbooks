@@ -1,11 +1,5 @@
 template#complex-transform
   x-select.tabs
-    for i in [1,2,3,4,5]
+    for i in ["Z^2","..."]
       .group(data-value=i)= i
-  canvas(width=1920 height=1280)
-  x-select.colours
-    for i in [1, 2, 3, 4]
-      .colour
-  .btn-row
-    a.btn.save(download target="_blank") Download
-    button.btn.clear Clear
+  canvas(width=2000 height=2000)

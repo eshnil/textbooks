@@ -1,138 +1,125 @@
 // =============================================================================
-// ComplexTransform Component
+// ComplexArithmetic Component
 // (c) Mathigon
 // =============================================================================
 
+import { CanvasView, CustomElementView, register, slide } from '@mathigon/boost';
+import { Complex,Random } from '@mathigon/fermat';
+import { Select } from '../../shared/types';
 
-import {flatten, tabulate2D} from '@mathigon/core';
-import {Point, Line} from '@mathigon/fermat';
-import {CanvasView, CustomElementView, register, slide} from '@mathigon/boost';
-import {Select} from '../../shared/types';
-
+import {drawCircle,drawLine,drawGraph,clearCanvas} from './canvasFunctions';
 
 // -------------------------------------------------------------------------
-// Symmetry Functions
+// Global Variables used by utility functions and runtime components
 
-const width = 1920;
-const height = 1280;
-
-const pointX1M = new Point(240, 320);
-const pointX1Y1 = new Point(480, 320);
-const lineX1 = new Line(new Point(0, 320), new Point(480, 320));
-const lineY1 = new Line(new Point(480, 0), new Point(480, 320));
-const lineY2 = new Line(new Point(640, 0), new Point(640, 320));
-
-const pointS = new Point(360, 360);
-const lineS = new Line(new Point(0, 0), new Point(360, 360));
-const lineSI = new Line(new Point(0, 720), new Point(720, 0));
-
-function grid(points: Point[], x: number, y: number) {
-  return flatten<Point>(tabulate2D((i, j) =>
-      points.map((p: Point) => p.shift(i * x, j * y)), width / x, height / y));
-}
-
-function applyTransforms(point: Point, [x, y]: [number, number],
-                         transforms: ((p: Point) => Point)[]) {
-  let points = [point.mod(x, y)];
-
-  for (let t of transforms) {
-    for (let p of points.map(p => t(p))) {
-      if (!points.some(q => q.equals(p))) points.push(p);
-    }
-  }
-
-  points = points.filter(p => (p.x >= 0 && p.x < x && p.y >= 0 && p.y < y));
-  return grid(points, x, y);
-}
-
-function lineX(y: number) {
-  return new Line(new Point(0, y), new Point(1, y));
-}
-
-function lineY(x: number) {
-  return new Line(new Point(x, 0), new Point(x, 1));
-}
-
-function line(a1: number, a2: number, b1: number, b2: number) {
-  return new Line(new Point(a1, a2), new Point(b1, b2));
-}
-
-export const TRANSFORMATIONS: (((p: Point) => Point[])|undefined)[] = [
-  undefined,
-
-  p => {  // p1
-    const p1 = p.mod(480, 320);
-    return grid([p1], 480, 320);
-  },
-
-  p => {  // p2
-    const p1 = p.mod(480, 640);
-    const p2 = p1.rotate(Math.PI, pointX1M);
-    return grid([p1, p2], 480, 640);
-  },
-
-  p => {  // p3
-    const h = 640;
-    const w = h / Math.sqrt(3) / 2;
-    return applyTransforms(p, [6 * w, h], [
-      p => p.rotate(2 * Math.PI / 3, new Point(w, 0)),
-      p => p.rotate(-2 * Math.PI / 3, new Point(w, h)),
-      p => p.rotate(-2 * Math.PI / 3, new Point(5 * w, 0)),
-      p => p.rotate(2 * Math.PI / 3, new Point(5 * w, h)),
-      p => p.rotate(2 * Math.PI / 3, new Point(2 * w, h / 2)),
-      p => p.rotate(-2 * Math.PI / 3, new Point(2 * w, h / 2)),
-      p => p.rotate(2 * Math.PI / 3, new Point(4 * w, h / 2)),
-      p => p.rotate(-2 * Math.PI / 3, new Point(4 * w, h / 2))
-    ]);
-  }
-
-];
+//size of the canvas element
+const width  = 2000;
+const height = 2000;
 
 // -------------------------------------------------------------------------
 // Component
 
-function drawPoint(ctx: CanvasRenderingContext2D, group: number, point: Point) {
-  for (let p of TRANSFORMATIONS[group]!(point)) {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
-    ctx.fill();
-  }
-}
-
 @register('x-complex-transform', {templateId: '#complex-transform'})
-export class ComplexTransform extends CustomElementView {
+export class Complextransform extends CustomElementView {
 
   ready() {
+    const $arithmeticOperations = this.$('x-select.tabs') as Select;
     const $canvas = this.$('canvas') as CanvasView;
     const context = $canvas.ctx;
 
-    const $groups = this.$('x-select.tabs') as Select;
-    let activeGroup = +$groups.$active.data.value!;
-    $groups.on('change', $active => {
-      context.clearRect(0, 0, 1e10, 1e10);
-      activeGroup = +$active.data.value;
-      this.trigger('switch', activeGroup);
-    });
+    context.translate((width/2), (height/2));// Change the origin of the canvas to its center from the top left corner
 
-    const $colours = this.$('x-select.colours') as Select;
-    context.fillStyle = $colours.$active.css('background-color')!;
-    $colours.on('change', $active => {
-      context.fillStyle = $active.css('background-color');
-    });
+    let complexNumberOne  = new Complex(Random.integer(-5, 5), Random.integer(-5, 5)); // z1
+    let complexNumberTwo  = new Complex(Random.integer(-5, 5), Random.integer(-5, 5)); // z2
 
-    this.$('.clear')!.on('click', () => context.clearRect(0, 0, 1e10, 1e10));
-    this.$('.save')!.on('click', e => e.target.href = $canvas.pngImage);
+    //Flags that signify if a complex number can be dragged
+    let draggable = {
+      z1 : false,
+      z2 : false
+    };
+
+    let activeArithmeticOperation = "Product"; //Possible operations - Sum, Difference, Product, Quotient
+
+    complexPlane(context,width,height,complexNumberOne,complexNumberTwo,activeArithmeticOperation);//Initial Plane with the randomly generated complex numbers that are added
+
+    //Change the active arithmetic operation to the selected tab
+    $arithmeticOperations.on('change', $active => {
+      activeArithmeticOperation = "Product";
+      complexPlane(context,width,height,complexNumberOne,complexNumberTwo,activeArithmeticOperation);
+    });
 
     slide($canvas, {
-      start: p => drawPoint(context, activeGroup, p),
-      move(p, _, last) {
-        let l = new Line(last, p);
-        let n = l.length / 8;
-        for (let i = 0; i < n; ++i) drawPoint(context, activeGroup,
-            l.at(i / n));
+
+      //Identify first click coordinates to check if and which complex number has been selected and flag selected number as draggable
+      start: p => {
+        let initialComplexNumber = new Complex(Math.round((p.x-1000) /100),Math.round((p.y-1000) /100)); //get the complex number present in the first click's coordinates
+        if(initialComplexNumber.re===complexNumberOne.re && initialComplexNumber.im===complexNumberOne.im) {
+          draggable.z1= true;
+        }else if(initialComplexNumber.re===complexNumberTwo.re && initialComplexNumber.im===complexNumberTwo.im) {
+          draggable.z2= true;
+        }else{
+          console.log("Please move an existing complex number");
+        }
       },
-      end: () => this.trigger('draw'),
-      justInside: true
+
+      // Drag the Complex number selected by the user's initial click location
+      "move": p =>{
+        let selectedComplexNumber = new Complex(Math.round((p.x-1000) /100),Math.round((p.y-1000) /100));// The points are subtracted by 1000 to match the origin offset of the canvas
+        if(draggable.z1) {
+          complexNumberOne = selectedComplexNumber;
+        }else if(draggable.z2) {
+          complexNumberTwo = selectedComplexNumber;
+        }
+        complexPlane(context, width, height, complexNumberOne, complexNumberTwo, activeArithmeticOperation);
+      },
+
+      // De-flag Complex number once moved
+      end: () => {
+        draggable.z2= false;
+        draggable.z1= false;
+      },
+
+      "justInside": true //Limit movement to within the canvas
     });
   }
 }
+
+// -------------------------------------------------------------------------
+// Canvas Functions
+
+function complexPlane(context:CanvasRenderingContext2D, width: number, height:number,z1: any, z2:any, operation :string ) {
+  clearCanvas(context);
+  drawGraph(context,width,height); //Cartesian Plane
+
+  let complexArithmetic:any; //Output of selected arithmetic operation
+  let colorOfOperation: any; // The color to signify the operation
+
+  if(operation == "Sum"){
+    complexArithmetic = Complex.sum(z1,z2);
+    colorOfOperation = "blue";
+  }else if(operation == "Quotient"){
+    complexArithmetic   = Complex.quotient(z1,z2);
+    colorOfOperation = "red";
+  }else if(operation == "Product"){
+    complexArithmetic  = Complex.product(z1,z2);
+    colorOfOperation = "green";
+  }else if(operation == "Difference"){
+    complexArithmetic = Complex.difference(z1,z2);
+    colorOfOperation = "teal"
+  }else{
+    console.log("Invalid Argument : Complex Arithemtic Operations");
+  }
+
+  drawLine(context,0,0,(z1.re*100),(z1.im*100),5,"black"); // Line from 0 -> z1
+  drawLine(context,0,0,(z2.re*100),(z2.im*100),5,"black"); // Line from 0 -> z2
+  //drawLine(context,0,0,(Math.round(complexArithmetic.re)*100),(Math.round(complexArithmetic.im)*100),5); // Line from 0 -> output of Calculation
+  drawLine(context,(z1.re*100),(z1.im*100),(Math.round(complexArithmetic.re)*100),(Math.round(complexArithmetic.im)*100),5,colorOfOperation); // Line from z1 -> output of Calculation
+  drawLine(context,(z2.re*100),(z2.im*100),(Math.round(complexArithmetic.re)*100),(Math.round(complexArithmetic.im)*100),5,colorOfOperation); // Line from z2 -> output of Calculation
+
+  //Drawing Circles over the lines
+  drawCircle(context, z1.re ,z1.im);
+  drawCircle(context, z2.re ,z2.im);
+  drawCircle(context, complexArithmetic.re,complexArithmetic.im,colorOfOperation,20); // Smaller size to know if the result is the same as z1 or z2
+}
+
+// -------------------------------------------------------------------------

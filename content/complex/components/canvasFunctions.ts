@@ -70,9 +70,9 @@ function drawCircle(context:CanvasRenderingContext2D  ,re: number,im: number, co
 
         let backgroundWidth: number; // Label background is larger is x is negative
         if(x<0){
-            backgroundWidth = 200;
+            backgroundWidth = 190;
         }else{
-            backgroundWidth = 170;
+            backgroundWidth = 160;
         }
 
         let xOffset:any;
@@ -86,19 +86,20 @@ function drawCircle(context:CanvasRenderingContext2D  ,re: number,im: number, co
         }
 
         context.save();
-        labelBackground(context,xOffsetLabel,coords.y-35,65,backgroundWidth,30);
-        context.fillStyle = 'white';
+        labelBackground(context,xOffsetLabel,coords.y-35,65,backgroundWidth);
+        context.fillStyle = 'black';
         context.fillText( String(x) + dynamicLabelContent + "i", xOffset, coords.y+10);
         context.restore();
 
-        function labelBackground(context:CanvasRenderingContext2D,x:number,y:number,rectHeight:number,rectWidth:number,radius:number){
+        function labelBackground(context:CanvasRenderingContext2D,x:number,y:number,rectHeight:number,rectWidth:number){
+            let thickness = 9;
             context.save();
             context.lineJoin = "round";
             context.strokeStyle ="black";
-            context.lineWidth = radius;
-            context.strokeRect(x+(radius/2), y+(radius/2), rectWidth-radius, rectHeight-radius);
-            context.fillStyle = 'black';
-            context.fillRect(x+(radius/2), y+(radius/2), rectWidth-radius, rectHeight-radius);
+            context.lineWidth = thickness;
+            context.strokeRect(x+(thickness/2), y+(thickness/2), rectWidth-thickness, rectHeight-thickness);
+            context.fillStyle = 'white';
+            context.fillRect(x+(thickness/2), y+(thickness/2), rectWidth-thickness, rectHeight-thickness);
             context.restore();
         }
     }
